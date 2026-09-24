@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101012"><meta name="description" content="Less scrolling. More watching. Find your next favourite movie or show with NextUp’s mood quiz, conversation matcher, and weekly curated picks.">
+  <title>NextUp — Find your next obsession</title>
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header">
+    <a class="logo" href="#home" aria-label="NextUp home">NEXT<span>UP</span><i></i></a>
+    <nav aria-label="Main navigation">
+      <button class="nav-link active" data-nav="home">Discover</button>
+      <button class="nav-link" data-nav="movies">Movies</button>
+      <button class="nav-link" data-nav="shows">TV Shows</button>
+      <button class="nav-link" data-nav="weekly">This week <span class="red-dot"></span></button>
+      <button class="nav-link" data-nav="saved">My list <span id="saved-count">0</span></button>
+    </nav>
+    <div class="header-actions"><button class="icon-button" id="search-toggle" aria-label="Search titles"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="7.3"/><path d="m16.2 16.2 5 5"/></svg></button><button class="profile" id="profile-button" aria-label="Open your saved list">N</button></div>
+  </header>
+  <main id="main">
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="hero-art" aria-hidden="true"></div>
+      <div class="hero-content">
+        <div class="eyebrow"><span class="red-line"></span> THE SPOTLIGHT <span class="muted">/ 01</span></div>
+        <p class="hero-kicker">Less scrolling. More watching.</p>
+        <h1 id="hero-title">Find your next<br><em>obsession.</em></h1>
+        <p class="hero-description">The right story for the mood you’re in.<br>Movies, shows, and a little help choosing.</p>
+        <div class="hero-buttons"><button class="button primary" id="hero-quiz"><span>✦</span> Find my next watch</button><button class="button glass" id="hero-random"><span>⤨</span> Surprise me</button></div>
+        <div class="hero-note"><span class="green-dot"></span> Good taste. Zero subscriptions. All you.</div>
+      </div>
+      <div class="hero-side"><div class="hero-outline">N</div><span>ONE MORE EPISODE. ONE GREAT FILM.</span></div>
+    </section>
+
+    <div class="page-content">
+      <section class="finder-banner" aria-labelledby="finder-title"><div class="finder-icon">✦</div><div><p class="eyebrow">END THE ENDLESS SCROLL</p><h2 id="finder-title">Your mood. Your next obsession.</h2><p>A few quick questions. Something you’ll actually want to watch.</p></div><button class="button primary" id="open-quiz">Find my next watch <span>↗</span></button><button class="text-button" id="random-pick"><span>⤨</span> Surprise me</button></section>
+
+      <section class="mood-section" aria-labelledby="mood-title"><div class="section-heading"><h2 id="mood-title">What’s the vibe tonight?</h2><span>Go with your gut.</span></div><div class="mood-row" id="mood-row"></div></section>
+
+      <section id="results-section" class="section results-section" hidden aria-labelledby="results-title"><div class="section-heading"><div><p class="eyebrow">MADE FOR YOUR MOOD</p><h2 id="results-title">Your next great watch</h2><p class="section-subtitle" id="results-note"></p></div><button class="text-button" id="clear-results">Clear ✕</button></div><div class="poster-grid" id="results-grid"></div></section>
+
+      <section class="section" id="weekly" aria-labelledby="weekly-title"><div class="section-heading"><div class="heading-inline"><h2 id="weekly-title">The weekly shortlist</h2><span class="pill">TOP 10 PICKS</span></div><div class="row-controls"><span id="week-label"></span><button class="icon-button" data-scroll="-1" aria-label="Previous weekly picks">←</button><button class="icon-button" data-scroll="1" aria-label="Next weekly picks">→</button></div></div><p class="section-subtitle">Ten curated favourites, reshuffled every Monday. Your week, sorted.</p><div class="poster-row ranked-row" id="weekly-row"></div></section>
+
+      <section class="section" id="browse" aria-labelledby="browse-title"><div class="section-heading"><div><p class="eyebrow">GOOD STORIES START HERE</p><h2 id="browse-title">Worth your screen time</h2></div><span id="catalog-count" class="small-label"></span></div><div class="browse-toolbar"><label class="search-field"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/></svg><input id="search-input" type="search" placeholder="Search titles, genres, or a feeling…" aria-label="Search the catalogue"></label><select id="type-filter" aria-label="Filter by format"><option value="any">Movies & shows</option><option value="movie">Movies</option><option value="show">TV shows</option></select><select id="genre-filter" aria-label="Filter by genre"><option value="any">All genres</option></select><select id="language-filter" aria-label="Filter by language"><option value="any">All languages</option></select><label class="hide-seen"><input type="checkbox" id="hide-seen"> Hide watched</label></div><div class="poster-grid" id="browse-grid"></div><button class="button outline load-more" id="load-more">A little more to explore ↓</button></section>
+
+      <section class="bottom-grid"><div class="chat-teaser"><div class="eyebrow"><span class="sparkle">✦</span> MEET YOUR MOVIE WINGMAN</div><h2>“Something like Inception.<br>But make it a TV show.”</h2><p>Tell us what’s on your mind. We’ll connect the dots.</p><button class="button light" id="open-chat">Let’s find your vibe <span>↗</span></button><span class="chat-teaser-label">A local taste matcher. No account needed.</span></div><div class="trivia-card" id="trivia-card"><div class="section-heading"><p class="eyebrow">THE DAILY TAKE</p><span class="pill">TRIVIA</span></div><h2 id="trivia-question"></h2><div id="trivia-options"></div><p id="trivia-result" aria-live="polite"></p><div class="trivia-footer"><span id="trivia-date"></span><span>A new question tomorrow ↗</span></div></div></section>
+      <footer><a class="logo" href="#home">NEXT<span>UP</span><i></i></a><p>Less scrolling. More watching.</p><div><button class="text-button" id="about-button">About & credits</button><span>Made for movie nights.</span></div></footer>
+    </div>
+  </main>
+  <button class="chat-fab" id="chat-fab" aria-label="Open recommendation chat">✦ <span>Find my vibe</span></button>
+  <aside class="chat-panel" id="chat-panel" hidden aria-label="Recommendation chat"><div class="chat-header"><div class="chat-avatar">✦</div><div><h2>Your movie wingman</h2><p><span class="green-dot"></span> Local taste matcher</p></div><button class="icon-button" id="close-chat" aria-label="Close chat">✕</button></div><div class="chat-messages" id="chat-messages" role="log" aria-live="polite"></div><div class="chat-suggestions" id="chat-suggestions"><button data-chat="A funny movie under 2 hours">Funny, under 2 hours</button><button data-chat="A show like Inception">A show like Inception</button><button data-chat="A Korean thriller, no horror">Korean thriller</button></div><form id="chat-form"><label class="sr-only" for="chat-input">What would you like to watch?</label><input id="chat-input" placeholder="A cosy film for a rainy night…" maxlength="400" autocomplete="off"><button aria-label="Send message">↑</button></form><div class="chat-disclaimer">Matches our curated catalogue • <button id="reset-chat">Start fresh</button></div></aside>
+  <dialog id="modal" aria-labelledby="modal-title"><button class="modal-close icon-button" id="close-modal" aria-label="Close dialog">✕</button><div id="modal-content"></div></dialog>
+  <div id="toast" role="status"></div>
+  <noscript><p class="noscript">Please enable JavaScript to explore NextUp’s recommendations.</p></noscript>
+  <script src="./data.js"></script><script src="./engine.js"></script><script src="./app.js"></script>
+</body></html>

@@ -1,0 +1,85 @@
+const {chromium}=require('playwright');
+const {spawn}=require('node:child_process');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+(async()=>{
+ const server=spawn('python3',['-m','http.server','8123','--bind','127.0.0.1'],{cwd:path.join(__dirname,'..'),stdio:'ignore'});
+ let browser;
+ try{
+  for(let i=0;i<40;i++){try{await fetch('http://127.0.0.1:8123/');break;}catch{await new Promise(r=>setTimeout(r,100));}}
+  browser=await chromium.launch({headless:true});
+  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  // The core site must remain usable without poster or font services.
+  await page.route('https://**/*',route=>route.abort());
+  await page.goto('http://127.0.0.1:8123/');
+  await page.locator('#browse-grid .card').first().waitFor();
+  assert.equal(await page.locator('#weekly-row .card').count(),10);
+  assert.equal(await page.locator('#browse-grid .card').count(),18);
+  await page.locator('#browse-grid [data-save]').first().click();
+  assert.equal(await page.locator('#saved-count').textContent(),'1');
+  await page.reload();
+  assert.equal(await page.locator('#saved-count').textContent(),'1');
+  await page.locator('[data-nav="saved"]').click();
+  assert.equal(await page.locator('#browse-grid .card').count(),1);
+  await page.locator('[data-nav="home"]').click();
+  await page.locator('#hero-quiz').click();
+  await page.locator('[data-quiz-option="1"]').click();
+  await page.locator('[data-action="quiz-next"]').click();
+  await page.locator('[data-quiz-option="1"]').click();
+  await page.locator('[data-action="quiz-next"]').click();
+  await page.locator('[data-quiz-option="1"]').click();
+  await page.locator('[data-action="quiz-next"]').click();
+  await page.locator('[data-quiz-option="1"]').click();
+  await page.locator('[data-action="quiz-next"]').click();
+  assert.ok(await page.locator('#results-grid .card').count()>0);
+  await page.locator('#chat-fab').click();
+  await page.locator('#chat-input').fill('A show like Inception');
+  await page.locator('#chat-input').press('Enter');
+  assert.equal(await page.locator('.chat-match').count(),3);
+  assert.match(await page.locator('#chat-messages').textContent(),/Severance/);
+  await page.locator('#chat-input').fill('under 30 minutes');
+  await page.locator('#chat-input').press('Enter');
+  assert.match(await page.locator('#chat-messages').textContent(),/29 min/);
+  await page.locator('#close-chat').click();
+  await page.locator('#search-input').fill('<script>alert(1)</script>');
+  assert.equal(await page.locator('#browse-grid .card').count(),0);
+  await page.locator('#search-input').fill('Interstellar');
+  assert.equal(await page.locator('#browse-grid .card').count(),1);
+  await page.locator('#browse-grid [data-detail]').click();
+  await page.locator('[data-watched="interstellar"]').click();
+  await page.locator('#close-modal').click();
+  await page.locator('#hide-seen').check();
+  assert.equal(await page.locator('#browse-grid .card').count(),0);
+  await page.locator('[data-action="reset-filters"]').click();
+  await page.locator('[data-trivia="0"]').click();
+  assert.equal(await page.locator('#trivia-options button:disabled').count(),4);
+  await page.reload();
+  assert.equal(await page.locator('#trivia-options button:disabled').count(),4);
+  await page.locator('#hero-random').click();
+  assert.ok(await page.locator('#modal').isVisible());
+  const first=await page.locator('#modal-title').textContent();
+  await page.locator('[data-action="reroll"]').click();
+  assert.notEqual(await page.locator('#modal-title').textContent(),first);
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#modal').isVisible(),false);
+  fs.mkdirSync('test-results',{recursive:true});
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.screenshot({path:'test-results/desktop.png',fullPage:true});
+  for(const width of [390,768,1440]){
+   await page.setViewportSize({width,height:844});
+   await page.evaluate(()=>window.scrollTo(0,0));
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Horizontal overflow at ${width}px`);
+   await page.screenshot({path:`test-results/layout-${width}.png`,fullPage:true});
+  }
+  await page.setViewportSize({width:390,height:844});
+  await page.locator('#chat-fab').click();
+  const chatBox=await page.locator('#chat-panel').boundingBox();assert.ok(chatBox.x>=0&&chatBox.x+chatBox.width<=390);
+  await page.locator('#close-chat').click();
+  await page.locator('#hero-quiz').click();
+  const dialogBox=await page.locator('#modal').boundingBox();assert.ok(dialogBox.x>=0&&dialogBox.x+dialogBox.width<=390);
+  assert.deepEqual(errors,[]);
+  console.log('PASS: quiz, contextual chat, persistence, filtering, watched exclusion, trivia, random picker, keyboard close, external-image fallback, and mobile/tablet/desktop width checks.');
+ }finally{if(browser)await browser.close();server.kill();}
+})().catch(e=>{console.error(e);process.exitCode=1;});
