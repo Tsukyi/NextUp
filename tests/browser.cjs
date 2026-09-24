@@ -58,6 +58,8 @@ const path=require('node:path');
   await page.locator('#close-modal').click();
   await page.locator('#hide-seen').check();
   assert.equal(await page.locator('#browse-grid [data-detail="interstellar"]').count(),0);
+  await page.locator('#search-input').fill('__nextup_no_such_movie__');
+  assert.equal(await page.locator('#browse-grid .card').count(),0);
   await page.locator('[data-action="reset-filters"]').click();
   await page.locator('[data-trivia="0"]').click();
   assert.equal(await page.locator('#trivia-options button:disabled').count(),4);
