@@ -1,0 +1,22 @@
+name: Build catalogue snapshot
+on:
+  push:
+    branches: [main]
+    paths: ['scripts/refresh-catalogue.cjs', 'catalogue.js', '.github/workflows/catalogue.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/refresh-catalogue.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: catalogue-snapshot
+          path: catalogue/
