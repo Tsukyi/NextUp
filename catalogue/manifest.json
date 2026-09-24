@@ -1,10 +1,10 @@
 {
   "version": 2,
   "updatedAt": "2026-09-24T13:20:06.086Z",
-  "total": 25323,
-  "movies": 12778,
-  "shows": 12545,
-  "anime": 5798,
+  "total": 40323,
+  "movies": 17524,
+  "shows": 22799,
+  "anime": 9935,
   "genres": [
     "Action",
     "Adult",
@@ -69,17 +69,23 @@
     "Western"
   ],
   "files": [
-    "titles-014.json.gz",
-    "titles-017.json.gz",
-    "titles-011.json.gz",
-    "titles-009.json.gz",
-    "titles-006.json.gz",
-    "titles-003.json.gz",
+    "titles-000.json.gz",
     "titles-001.json.gz",
+    "titles-002.json.gz",
+    "titles-003.json.gz",
+    "titles-004.json.gz",
+    "titles-005.json.gz",
+    "titles-006.json.gz",
+    "titles-007.json.gz",
+    "titles-008.json.gz",
+    "titles-009.json.gz",
     "titles-010.json.gz",
+    "titles-011.json.gz",
     "titles-012.json.gz",
+    "titles-013.json.gz",
+    "titles-014.json.gz",
     "titles-015.json.gz",
-    "titles-002.json.gz"
+    "titles-017.json.gz"
   ],
   "sources": {
     "movies": "Wikipedia movie archive, primarily American films through 2023; live movie search via Apple",
