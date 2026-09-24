@@ -26,7 +26,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ## Anime
 
-Anime title metadata, images, genres, themes and demographics come from [MyAnimeList](https://myanimelist.net/) through [Jikan](https://jikan.moe/). Every imported record links to its MyAnimeList page. Anime descriptions in NextUp are generated from basic metadata; MyAnimeList synopses are not copied. Anime mode includes imported anime and the original anime picks. Some shows may be represented under different localized names, despite deduplication by known aliases. Language is left unknown unless another matching source supplies it; an anime label does not assume the language of every release or dub.
+The anime snapshot uses [Manami’s anime-offline-database](https://github.com/manami-project/anime-offline-database), an archived dataset last updated in July 2026, distributed under its [Open Database License](https://github.com/manami-project/anime-offline-database/blob/master/LICENSE). The adapted anime records retain this licence; metadata has been normalized, restricted to supported formats, and filtered for adult-only tags. Up to 10,000 entries are selected by the source’s aggregated score. Images remain the property of their respective rights holders. Source URLs and known alternate titles are retained.
+
+Live anime search uses [MyAnimeList](https://myanimelist.net/) through [Jikan](https://jikan.moe/). Each anime title links to its metadata source. Descriptions are generated from basic metadata, not copied synopses. Some entries may appear under different localized names despite alias deduplication. Language stays unknown unless a matching source supplies it; anime does not imply the language of every release or dub.
 
 ## Live movie search
 

@@ -14,8 +14,11 @@ Official setup guide: https://docs.github.com/en/pages/getting-started-with-gith
 
 ## What’s included
 
-- 94 curated films and series across nine catalogue languages, including Korean dramas, Japanese animation, Indian films, and Singaporean cinema.
-- Four-step taste quiz: mood, format, time, and genre.
+- A much larger sourced catalogue of movies, TV and anime, loaded from compressed snapshot chunks. The manifest reports the exact published counts. The original 94 editorial favourites are retained.
+- Dedicated Anime mode, alternate-title search, and genres/themes including isekai, mecha, supernatural, slice of life, martial arts, sports, historical, shounen and seinen.
+- Live title search beyond the snapshot: TVmaze for shows, Apple for movies, and Jikan for anime. Imported results can be saved or used for “More like this”.
+- Real posters from source metadata, backup image URLs, and a “With posters” browsing filter enabled by default.
+- Four-step taste quiz: mood, format, time, and genre, with an anime-only format option.
 - Conversation-style recommendation matcher with follow-up refinements, similar-title matching, runtime and language constraints, and exclusions such as “no horror”.
 - Random unseen picks that respect the current browse filters.
 - Ten weekly curated picks, refreshed every Monday at 00:00 UTC. These are editorial selections, not live viewing charts.
@@ -46,14 +49,16 @@ Try:
 - “Cosy Japanese animation”
 - “A romantic movie” → “French” → “any length”
 
-Say **reset** or use **Start fresh** to clear the chat’s accumulated preferences. The matcher is a local rule-based recommender, not a generative AI chatbot. It cannot answer arbitrary questions or recommend titles outside the catalogue. Unsupported requests prompt a clarification; impossible constraints return an empty state. Show runtimes are approximate episode lengths. Some multilingual titles have a single primary catalogue language.
+Film archive metadata is mainly American films through 2023; the anime archive is a July 2026 snapshot. Live title search supplements these archives. Unknown runtimes and languages are not guessed and cannot satisfy strict filters. Imported mood tags are inferred from genres.
+
+Say **reset** or use **Start fresh** to clear the chat’s accumulated preferences. The matcher is a local rule-based recommender, not a generative AI chatbot. It cannot answer arbitrary questions. Recommendations use the loaded snapshot plus titles brought in through live search. Unsupported requests prompt a clarification; impossible constraints return an empty state. Show runtimes are approximate episode lengths. Some multilingual titles have a single primary catalogue language.
 
 ## Data and privacy
 
-- `data.js` is the editable catalogue and trivia bank. No remote movie database is fetched at runtime.
+- `data.js` is the editable catalogue and trivia bank. The expanded snapshot loads from `catalogue/manifest.json` and gzip JSON chunks. Live searches fetch the selected external source.
 - Saved titles, watched titles, and daily trivia answers use this browser’s local storage. There is no account or cross-device sync.
-- Chat messages stay in memory and clear on reload. They are not sent to a server.
-- Posters load from TMDB where an image path is available. Other entries use designed typographic title cards; those cards also appear if remote artwork fails. Google Fonts is optional and falls back to system fonts.
+- Chat messages stay in memory and clear on reload. They are not sent to a server. Live title searches send the title query to external metadata providers. Saved imported title details persist locally.
+- Posters load from the credited source provider, with TMDB paths retained as a backup for some editorial picks. Other entries use designed typographic title cards; those cards also appear if remote artwork fails. Google Fonts is optional and falls back to system fonts.
 - Artwork belongs to its respective rights holders. This independent project is not affiliated with Netflix, TMDB, or any streaming platform.
 - Providers may change streaming availability, and age ratings vary by region. Follow the destination service for current details.
 
@@ -87,3 +92,9 @@ The GitHub Actions workflow runs both sets of tests and uploads desktop/tablet/m
 | `tests/` | Engine and browser integration checks |
 
 To expand recommendations, add entries to `CATALOG` in `data.js`, with unique IDs and appropriate metadata. Keep poster paths optional. No API secrets should be added to this public static site.
+
+## Catalogue maintenance
+
+`Build catalogue snapshot` is a **read-only** workflow. It fetches source metadata, normalizes it, and uploads an artifact for review. It has no schedule or repository write permissions and never publishes automatically. Publish a reviewed snapshot by adding its files under `catalogue/`. The existing Pages branch deployment handles normal commits. Browser decompression requires a modern browser supporting `DecompressionStream`. If loading fails, editorial picks, saved titles, and live search remain available.
+
+See [DATA-SOURCES.md](DATA-SOURCES.md) for attribution, data licences, coverage and limitations.

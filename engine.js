@@ -15,7 +15,7 @@ const NextUpEngine = (() => {
     'Romance':['romance','romantic','romcom','rom-com'], 'Horror':['horror','scary','creepy','terrifying'],
     'Thriller':['thriller','thrillers','suspense'], 'Mystery':['mystery','mysteries','detective','whodunit'],
     'Animation':['animation','animated','anime'], 'Action':['action'], 'Drama':['drama'],
-    'Fantasy':['fantasy','magic'], 'Documentary':['documentary','documentaries','docu'],
+    'Fantasy':['fantasy','magic'], 'Supernatural':['supernatural'], 'Historical':['historical','period'], 'Western':['western','westerns'], 'War':['war','military'], 'Psychological':['psychological'], 'Slice of Life':['slice of life','slice-of-life'], 'Isekai':['isekai'], 'Mecha':['mecha'], 'Martial Arts':['martial arts','kung fu'], 'Shounen':['shounen','shonen'], 'Shoujo':['shoujo','shojo'], 'Seinen':['seinen'], 'Josei':['josei'], 'School':['school'], 'Music':['music','musical'], 'Documentary':['documentary','documentaries','docu'],
     'Family':['family friendly','family-friendly','for kids','children'], 'Adventure':['adventure'],
     'Music':['musical','music'], 'Sport':['sport','sports','football','basketball'], 'Nature':['nature','wildlife']
   };
@@ -30,7 +30,8 @@ const NextUpEngine = (() => {
   function dailyIndex(length,date=new Date()){return Math.floor(new Date(dateKey(date)+'T00:00:00Z').getTime()/86400000)%length;}
   function parsePrompt(input,catalog,previous={}) {
     const p={...previous}; let text=normalized(input); const recognized=[];
-    const source=[...catalog].sort((a,b)=>b.title.length-a.title.length).find(x=>text.includes(normalized(x.title)));
+    const reference=text.match(/\b(?:like|similar to|loved|enjoyed)\s+["“]?(.+?)(?:["”]|[,!?]|$)/)?.[1]?.trim();
+    const source=catalog.flatMap(x=>[x.title,...(x.aliases||[])].map(title=>({x,title:normalized(title)}))).filter(({title})=>title&&(reference?(reference===title||(title.length>3&&reference.startsWith(title+' '))):text===title)).sort((a,b)=>b.title.length-a.title.length)[0]?.x;
     if(source){p.similar=source.id;recognized.push('similar');text=text.replace(normalized(source.title),'');}
     const excluded=new Set(p.excludeGenres||[]), excludedMoods=new Set(p.excludeMoods||[]);
     const negative = /\b(?:no|not|without|avoid|exclude|dont want|nothing|anything but)\s+(?:(?:any|too|a|an|really|super|more)\s+)?([^,.!?;]+)/g;
@@ -58,7 +59,7 @@ const NextUpEngine = (() => {
     if(/\b(short|quick)\b/.test(text)&&!duration){p.maxMinutes=p.type==='show'?30:100;recognized.push('time');}
     if(/\b(any length|any runtime|no time limit)\b/.test(normalized(input))){p.maxMinutes=0;recognized.push('time');}
     if(/\b(not watched|havent seen|unwatched)\b/.test(normalized(input)))p.hideSeen=true;
-    if(/\banime\b/.test(text)){p.language='Japanese';recognized.push('language');}
+    if(/\b(anime|animation from japan)\b/.test(text)){p.anime=true;recognized.push('anime');} if(/\b(no anime|not anime|live action|live-action)\b/.test(normalized(input))){p.anime=false;p.excludeAnime=true;recognized.push('anime');}
     const keywords=['space','time travel','heist','friendship','family','cooking','food','superhero','zombies','workplace','school','college','sports','chess','music','ai','robots','politics','magic','war','survival','lawyer','prison','nature','cyberpunk','miniseries'];
     const tags=keywords.filter(k=>has(text,k));if(tags.length){p.tags=tags;recognized.push('themes');}
     if(p.genres)p.genres=p.genres.filter(g=>!excluded.has(g));
@@ -67,16 +68,17 @@ const NextUpEngine = (() => {
   }
   function recommend(catalog,p={},watched=[],limit=12){
     const source=catalog.find(x=>x.id===p.similar);
-    return catalog.filter(x=>(!p.type||p.type==='any'||x.type===p.type)&&(!p.language||p.language==='any'||x.language===p.language)&&(!p.maxMinutes||x.minutes<=p.maxMinutes)&&!(p.excludeGenres||[]).some(g=>x.genres.includes(g))&&!(p.excludeMoods||[]).some(m=>x.moods.includes(m))&&(!p.hideSeen||!watched.includes(x.id))&&x.id!==p.similar&&(!(p.genres||[]).length||p.genres.some(g=>x.genres.includes(g)))).map(x=>{
+    const watchedIDs=new Set(watched);
+    return catalog.filter(x=>(!p.anime||x.anime||x.tags?.includes('anime'))&&(!p.excludeAnime||!(x.anime||x.tags?.includes('anime')))&&(!p.type||p.type==='any'||x.type===p.type)&&(!p.language||p.language==='any'||x.language===p.language)&&(!p.maxMinutes||(Number.isFinite(x.minutes)&&x.minutes>0&&x.minutes<=p.maxMinutes))&&!(p.excludeGenres||[]).some(g=>x.genres.includes(g))&&!(p.excludeMoods||[]).some(m=>x.moods.includes(m))&&(!p.hideSeen||!watchedIDs.has(x.id))&&x.id!==p.similar&&(!(p.genres||[]).length||p.genres.some(g=>x.genres.includes(g)))).map(x=>{
       let score=0;const reasons=[];
       const moods=(p.moods||[]).filter(m=>x.moods.includes(m));score+=moods.length*7;if(moods.length)reasons.push(moods.join(' + ').toLowerCase());
       const genres=(p.genres||[]).filter(g=>x.genres.includes(g));score+=genres.length*4;if(genres.length)reasons.push(genres.join(' / '));
       const tags=(p.tags||[]).filter(t=>normalized(x.tags).includes(t));score+=tags.length*5;if(tags.length)reasons.push(tags.slice(0,2).join(' & '));
-      if(source){const shared=source.genres.filter(g=>x.genres.includes(g));const sharedMoods=source.moods.filter(m=>x.moods.includes(m));score+=shared.length*4+sharedMoods.length*3;score+=source.tags.split(' ').filter(t=>t.length>3&&x.tags.includes(t)).length;if(shared.length)reasons.push('shares '+shared.slice(0,2).join(' / ')+' with '+source.title);}
+      if(source){const shared=source.genres.filter(g=>x.genres.includes(g));const sharedMoods=source.moods.filter(m=>x.moods.includes(m));score+=24*shared.length/Math.max(source.genres.length,x.genres.length,1)+8*sharedMoods.length/Math.max(source.moods.length,x.moods.length,1);score+=source.tags.split(' ').filter(t=>t.length>3&&x.tags.includes(t)).length;if(shared.length)reasons.push('shares '+shared.slice(0,2).join(' / ')+' with '+source.title);}
       if(p.language&&p.language!=='any')reasons.push(x.language+' language');
       if(p.maxMinutes)reasons.push(x.minutes+' min'+(x.type==='show'?' / episode':''));
       return {...x,score,reasons:reasons.length?reasons.slice(0,3):['A pick from our curated catalogue']};
-    }).sort((a,b)=>b.score-a.score||hash(a.id)-hash(b.id)).slice(0,limit);
+    }).sort((a,b)=>b.score-a.score||(Math.min(b.rating||0,9))-(Math.min(a.rating||0,9))||Number(!!(b.poster||b.posterURL))-Number(!!(a.poster||a.posterURL))||hash(a.id)-hash(b.id)).slice(0,limit);
   }
   return {normalized,hash,dateKey,weekKey,weekly,dailyIndex,parsePrompt,recommend};
 })();

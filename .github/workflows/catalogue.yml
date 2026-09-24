@@ -2,7 +2,7 @@ name: Build catalogue snapshot
 on:
   push:
     branches: [main]
-    paths: ['scripts/refresh-catalogue.cjs', 'catalogue.js', '.github/workflows/catalogue.yml']
+    paths: ['scripts/refresh-catalogue.cjs', '.github/workflows/catalogue.yml']
   workflow_dispatch:
 permissions:
   contents: read
